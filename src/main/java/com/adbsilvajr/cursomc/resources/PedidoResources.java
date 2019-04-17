@@ -13,16 +13,16 @@ import com.adbsilvajr.cursomc.services.PedidoService;
 @RestController
 @RequestMapping(value = "/pedidos")
 public class PedidoResources {
-	
+
 	@Autowired
 	private PedidoService service;
-	
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> find(@PathVariable Integer id) {
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Pedido> find(@PathVariable Integer id) {
 
 		Pedido obj = service.find(id);
 		return ResponseEntity.ok().body(obj);
-		
+
 	}
 
 }

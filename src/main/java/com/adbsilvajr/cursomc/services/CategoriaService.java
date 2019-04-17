@@ -19,14 +19,20 @@ public class CategoriaService {
 		Optional<Categoria> obj = repo.findById(id);
 
 		// return obj.orElse(null);
-		return obj.orElseThrow( () /*expressao lambda*/ -> new ObjectNotFoundException(
+		return obj.orElseThrow(() /* expressao lambda */ -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Categoria.class.getName()));
 	}
-	
+
 	public Categoria insert(Categoria obj) {
 		obj.setId(null);
 		return repo.save(obj);
-		
+
+	}
+
+	public Categoria update(Categoria obj) {
+		find(obj.getId());
+		return repo.save(obj);
+
 	}
 
 }

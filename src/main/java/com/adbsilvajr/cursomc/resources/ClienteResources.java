@@ -13,16 +13,16 @@ import com.adbsilvajr.cursomc.services.ClienteService;
 @RestController
 @RequestMapping(value = "/clientes")
 public class ClienteResources {
-	
+
 	@Autowired
 	private ClienteService service;
-	
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> find(@PathVariable Integer id) {
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Cliente> find(@PathVariable Integer id) {
 
 		Cliente obj = service.find(id);
 		return ResponseEntity.ok().body(obj);
-		
+
 	}
 
 }
