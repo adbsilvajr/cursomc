@@ -24,7 +24,7 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardError> dataIntegrity(DataIntegrityException e, HttpServletRequest request) {
 
 		StandardError err = new StandardError(HttpStatus.BAD_REQUEST.value(), e.getMessage(),
-				System.currentTimeMillis());
+				System.currentTimeMillis(), e.getCause().toString());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
 

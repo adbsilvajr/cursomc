@@ -8,6 +8,15 @@ public class StandardError implements Serializable {
 	private Integer status;
 	private String msg;
 	private long timeStamp;
+	private String cause;
+
+	public StandardError(Integer status, String msg, long timeStamp, String cause) {
+		super();
+		this.status = status;
+		this.msg = msg;
+		this.timeStamp = timeStamp;
+		this.cause = cause;
+	}
 
 	public StandardError(Integer status, String msg, long timeStamp) {
 		super();
@@ -38,6 +47,14 @@ public class StandardError implements Serializable {
 
 	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+
+	public String getCause() {
+		return cause;
+	}
+
+	public void setCause(String cause) {
+		this.cause = cause;
 	}
 
 }
