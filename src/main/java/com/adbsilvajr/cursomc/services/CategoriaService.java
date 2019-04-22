@@ -33,13 +33,12 @@ public class CategoriaService {
 	public Categoria insert(Categoria obj) {
 		obj.setId(null);
 		return repo.save(obj);
-
 	}
 
 	public Categoria update(Categoria obj) {
-		find(obj.getId());
-		return repo.save(obj);
-
+		Categoria newObj = find(obj.getId());
+		updateData(newObj, obj);
+		return repo.save(newObj);
 	}
 
 	public void delete(Integer id) {
@@ -50,7 +49,6 @@ public class CategoriaService {
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Nao e possivel excluir categoria com produtos", e.getCause());
 		}
-
 	}
 
 	public List<Categoria> findAll() {
@@ -65,6 +63,10 @@ public class CategoriaService {
 	public Categoria fromDto(CategoriaDTO catDto) {
 		Categoria cat = new Categoria(catDto.getId(), catDto.getNome());
 		return cat;
+	}
+
+	private void updateData(Categoria newObj, Categoria obj) {
+		newObj.setNome(obj.getNome());
 	}
 
 }
