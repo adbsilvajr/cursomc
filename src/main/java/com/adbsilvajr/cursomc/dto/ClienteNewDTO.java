@@ -2,22 +2,44 @@ package com.adbsilvajr.cursomc.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.adbsilvajr.cursomc.services.validation.ClienteInsert;
+
+@ClienteInsert
 public class ClienteNewDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@NotEmpty(message = "Campo Vazio")
+	@Length(min = 5, max = 120, message = "min 5 e max 120!")
 	private String nome;
+
+	@NotEmpty(message = "Campo Vazio")
+	@Email(message = "Invalido ")
 	private String email;
+
+	@NotEmpty(message = "Campo Vazio")
 	private String cpfOuCnpj;
 	private Integer tipo;
 
+	@NotEmpty(message = "Campo Vazio")
 	private String logradouro;
+
+	@NotEmpty(message = "Campo Vazio")
 	private String numero;
+
 	private String complemento;
 	private String bairro;
+
+	@NotEmpty(message = "Campo Vazio")
 	private String cep;
 
 	private Integer cidadeId;
 
+	@NotEmpty(message = "Campo Vazio")
 	private String telefone1;
 	private String telefone2;
 	private String telefone3;
