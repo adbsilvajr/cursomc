@@ -3,6 +3,8 @@ package com.adbsilvajr.cursomc.services;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -10,9 +12,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.adbsilvajr.cursomc.domain.Cidade;
 import com.adbsilvajr.cursomc.domain.Cliente;
+import com.adbsilvajr.cursomc.domain.Endereco;
+import com.adbsilvajr.cursomc.domain.enums.TipoCliente;
 import com.adbsilvajr.cursomc.dto.ClienteDTO;
+import com.adbsilvajr.cursomc.dto.ClienteNewDTO;
+import com.adbsilvajr.cursomc.repositories.CidadeRepository;
 import com.adbsilvajr.cursomc.repositories.ClienteRepository;
+import com.adbsilvajr.cursomc.repositories.EnderecoRepository;
 import com.adbsilvajr.cursomc.services.exceptions.DataIntegrityException;
 import com.adbsilvajr.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -22,12 +30,26 @@ public class ClienteService {
 	@Autowired
 	private ClienteRepository repo;
 
+	@Autowired
+	private CidadeRepository cidadeRepository;
+
+	@Autowired
+	private EnderecoRepository enderecoRepository;
+
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = repo.findById(id);
 
 		// return obj.orElse(null);
 		return obj.orElseThrow(() /* expressao lambda */ -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
+	}
+
+	@Transactional
+	public Cliente insert(Cliente obj) {
+		obj.setId(null);
+		obj = repo.save(obj);
+		enderecoRepository.saveAll(obj.getEnderecos());
+		return obj;
 	}
 
 	public Cliente update(Cliente obj) {
@@ -58,6 +80,23 @@ public class ClienteService {
 
 	public Cliente fromDto(ClienteDTO obj) {
 		return new Cliente(obj.getId(), obj.getNome(), obj.getEmail(), null, null);
+	}
+
+	public Cliente fromDto(ClienteNewDTO objDto) {
+		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(),
+				TipoCliente.toEnum(objDto.getTipo()));
+		Optional<Cidade> cid = cidadeRepository.findById(objDto.getCidadeId());
+		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(),
+				objDto.getBairro(), objDto.getCep(), cli, cid.get());
+		cli.getEnderecos().add(end);
+		cli.getTelefones().add(objDto.getTelefone1());
+		if (objDto.getTelefone2() != null) {
+			cli.getTelefones().add(objDto.getTelefone2());
+		}
+		if (objDto.getTelefone3() != null) {
+			cli.getTelefones().add(objDto.getTelefone3());
+		}
+		return cli;
 	}
 
 	private void updateData(Cliente newObj, Cliente obj) {
