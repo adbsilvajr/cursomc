@@ -16,12 +16,15 @@ import org.springframework.stereotype.Service;
 import com.adbsilvajr.cursomc.domain.Cidade;
 import com.adbsilvajr.cursomc.domain.Cliente;
 import com.adbsilvajr.cursomc.domain.Endereco;
+import com.adbsilvajr.cursomc.domain.enums.Perfil;
 import com.adbsilvajr.cursomc.domain.enums.TipoCliente;
 import com.adbsilvajr.cursomc.dto.ClienteDTO;
 import com.adbsilvajr.cursomc.dto.ClienteNewDTO;
 import com.adbsilvajr.cursomc.repositories.CidadeRepository;
 import com.adbsilvajr.cursomc.repositories.ClienteRepository;
 import com.adbsilvajr.cursomc.repositories.EnderecoRepository;
+import com.adbsilvajr.cursomc.sercurity.UserSS;
+import com.adbsilvajr.cursomc.services.exceptions.AuthorizationException;
 import com.adbsilvajr.cursomc.services.exceptions.DataIntegrityException;
 import com.adbsilvajr.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -30,7 +33,7 @@ public class ClienteService {
 
 	@Autowired
 	private BCryptPasswordEncoder pe;
-	
+
 	@Autowired
 	private ClienteRepository repo;
 
@@ -41,10 +44,14 @@ public class ClienteService {
 	private EnderecoRepository enderecoRepository;
 
 	public Cliente find(Integer id) {
-		Optional<Cliente> obj = repo.findById(id);
 
-		// return obj.orElse(null);
-		return obj.orElseThrow(() /* expressao lambda */ -> new ObjectNotFoundException(
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+
+		Optional<Cliente> obj = repo.findById(id);
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
 	}
 
@@ -83,12 +90,12 @@ public class ClienteService {
 	}
 
 	public Cliente fromDto(ClienteDTO obj) {
-		return new Cliente(obj.getId(), obj.getNome(), obj.getEmail(), null, null,null);
+		return new Cliente(obj.getId(), obj.getNome(), obj.getEmail(), null, null, null);
 	}
 
 	public Cliente fromDto(ClienteNewDTO objDto) {
 		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(),
-				TipoCliente.toEnum(objDto.getTipo()),pe.encode(objDto.getSenha()));
+				TipoCliente.toEnum(objDto.getTipo()), pe.encode(objDto.getSenha()));
 		Optional<Cidade> cid = cidadeRepository.findById(objDto.getCidadeId());
 		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(),
 				objDto.getBairro(), objDto.getCep(), cli, cid.get());
